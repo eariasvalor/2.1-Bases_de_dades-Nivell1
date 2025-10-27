@@ -3,37 +3,86 @@
 ## 📄 Enunciat
 Una òptica, anomenada **“Cul d’Ampolla”**, vol informatitzar la gestió dels **clients**, **proveïdors**, **ulleres** i **vendes**.
 
-### Requisits del sistema
+L’objectiu és dissenyar una **base de dades relacional** que permeti registrar de manera eficient la informació dels proveïdors, les marques, les ulleres venudes i les dades de clients i empleats.
 
-#### 🧾 Proveïdors
+---
+
+## 🧾 Requisits del sistema
+
+### 🏢 Adreces
+- Carrer  
+- Número  
+- Pis  
+- Porta  
+- Ciutat  
+- Codi postal  
+- País  
+
+> 🔸 Les adreces s’han centralitzat en una taula pròpia (`address`), reutilitzada per a **clients** i **proveïdors**.
+
+---
+
+### 🧾 Proveïdors
 - Nom  
-- Adreça (carrer, número, pis, porta, ciutat, codi postal i país)  
+- Adreça (`address_id`)  
 - Telèfon  
 - Fax  
 - NIF  
 
-#### 🕶️ Ulleres
-- Marca  
-- Graduació de cada vidre  
-- Tipus de muntura (flotant, pasta o metàl·lica)  
+> Cada proveïdor pot vendre ulleres de diverses **marques**.
+
+---
+
+### 🕶️ Ulleres
+- Marca (`id_brand`)  
+- Graduació de cada vidre (`prescription_left`, `prescription_right`)  
+- Tipus de muntura (`Rimless`, `Plastic`, `Metal`)  
 - Color de la muntura  
 - Color de cada vidre  
 - Preu  
 
-#### 👥 Clients
+> Les ulleres d’una marca provenen d’un únic proveïdor.  
+> Cada marca pot tenir moltes ulleres.
+
+---
+
+### 👥 Clients
 - Nom  
-- Adreça postal  
+- Adreça (`address_id`)  
 - Telèfon  
 - Correu electrònic  
 - Data de registre  
-- Client recomanador (si n’hi ha)
+- Client recomanador (`id_referral`, opcional)
 
-#### 💼 Vendes
-- Cada venda ha d’indicar el **client**, l’**empleat/da** i les **ulleres** venudes.
+> 🔸 La relació **autoreferencial** permet identificar quin client ha recomanat un altre.  
+> 🔸 Un client pot recomanar-ne molts, però només pot ser recomanat per un.
 
-#### 💡 Política de compres
-- Les ulleres d’una **marca** es compraran a un **únic proveïdor**.  
-- Un **proveïdor** pot vendre ulleres de **diverses marques**.
+---
+
+### 💼 Empleats
+- Nom  
+
+> Cada venda està associada a un empleat/da concret.
+
+---
+
+### 💸 Vendes
+- Client (`id_customer`)  
+- Empleat/da (`id_employee`)  
+- Data de la venda  
+
+> Les vendes s’emmagatzemen amb la seva data i els detalls dels productes venuts.
+
+---
+
+### 📦 Detall de vendes
+- Venda (`id_sale`)  
+- Ulleres (`id_glasses`)  
+- Quantitat  
+- Preu unitari  
+
+> Cada venda pot incloure múltiples ulleres.  
+> Si unes ulleres s’eliminen del catàleg, el registre de la venda es conserva amb el valor `NULL` a la columna corresponent.
 
 ---
 
@@ -43,24 +92,26 @@ El disseny segueix una estructura **relacional normalitzada**, amb les següents
 
 | Taula | Descripció |
 |--------|-------------|
-| `proveidor` | Informació dels proveïdors |
-| `marca` | Cada marca està associada a un proveïdor |
-| `ulleres` | Ulleres associades a una marca |
-| `client` | Clients amb autoreferència per recomanació |
-| `empleat` | Empleats de l’òptica |
-| `venda` | Registre de vendes (client, empleat, data, preu) |
-| `venda_detall` | Ulleres incloses en cada venda |
+| `address` | Adreces físiques de clients i proveïdors |
+| `provider` | Informació dels proveïdors |
+| `brand` | Cada marca està associada a un proveïdor |
+| `glasses` | Ulleres associades a una marca |
+| `customer` | Clients amb autoreferència per recomanació |
+| `employee` | Empleats de l’òptica |
+| `sale` | Registre de vendes (client, empleat, data) |
+| `sale_detail` | Ulleres incloses en cada venda |
 
 ---
 
 ## 🔗 Relacions entre taules
 
-- **proveidor → marca** → 1:N  
-- **marca → ulleres** → 1:N  
-- **client → client** → autoreferència (client recomanador)  
-- **client → venda** → 1:N  
-- **empleat → venda** → 1:N  
-- **venda → venda_detall → ulleres** → N:M
+- **address → provider / customer** → 1:N  
+- **provider → brand** → 1:N  
+- **brand → glasses** → 1:N  
+- **customer → customer** → autoreferència (`id_referral`)  
+- **customer → sale** → 1:N  
+- **employee → sale** → 1:N  
+- **sale → sale_detail → glasses** → N:M 
 
 ---
 
