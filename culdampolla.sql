@@ -1,12 +1,25 @@
-CREATE DATABASE culdampolla_optics;
-USE culdampolla_optics;
+CREATE DATABASE culdampolla;
+USE culdampolla;
+
+CREATE TABLE address(
+id INT AUTO_INCREMENT PRIMARY KEY,
+street VARCHAR(80) NOT NULL,
+house_number VARCHAR(5) NOT NULL,
+floor VARCHAR(25) NOT NULL,
+door VARCHAR(10) NOT NULL,
+city VARCHAR(50) NOT NULL,
+postal_code VARCHAR(15) NOT NULL,
+country VARCHAR(59) NOT NULL
+);
+
 CREATE TABLE provider (
 id INT AUTO_INCREMENT PRIMARY KEY,
 name VARCHAR(100) NOT NULL,
-address VARCHAR(100),
+address_id INT NOT NULL,
 telephone VARCHAR(20),
 fax VARCHAR(20),
-NIF VARCHAR(10)
+NIF VARCHAR(10),
+FOREIGN KEY (address_id) REFERENCES address(id)
 );
 
 CREATE TABLE brand (
@@ -34,10 +47,11 @@ ON UPDATE CASCADE ON DELETE RESTRICT
 CREATE TABLE customer(
 id INT AUTO_INCREMENT PRIMARY KEY,
 name VARCHAR(100) NOT NULL,
-address VARCHAR(120),
+address_id INT NOT NULL,
 telephone VARCHAR(20),
 email VARCHAR(120),
-registration_date DATE
+registration_date DATE,
+FOREIGN KEY (address_id) REFERENCES address(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 ALTER TABLE customer
